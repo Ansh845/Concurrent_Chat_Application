@@ -71,3 +71,27 @@ void catch_ctrl_c(int signal)
 	close(client_socket);
 	exit(signal);
 }
+
+// Receive message
+void recv_message(int client_socket)
+{
+	while(1)
+	{
+		if(exit_flag)
+			return;
+		char name[MAX_LEN], str[MAX_LEN];
+		int color_code;
+		int bytes_received=recv(client_socket,name,sizeof(name),0);
+		if(bytes_received<=0)
+			continue;
+		recv(client_socket,&color_code,sizeof(color_code),0);
+		recv(client_socket,str,sizeof(str),0);
+		eraseText(6);
+		if(strcmp(name,"#NULL")!=0)
+			cout<<color(color_code)<<name<<" : "<<def_col<<str<<endl;
+		else
+			cout<<color(color_code)<<str<<endl;
+		cout<<colors[1]<<"You : "<<def_col;
+		fflush(stdout);
+	}	
+}
