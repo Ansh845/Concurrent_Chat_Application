@@ -4,6 +4,13 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <string.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <thread>
+#include <signal.h>
+#include <mutex>
+#define MAX_LEN 200
+#define NUM_COLORS 6
 
 using namespace std;
 
@@ -60,6 +67,7 @@ int main()
 			
 	return 0;
 }
+
 // Handler for "Ctrl + C"
 void catch_ctrl_c(int signal) 
 {
@@ -70,6 +78,41 @@ void catch_ctrl_c(int signal)
 	t_recv.detach();
 	close(client_socket);
 	exit(signal);
+}
+
+string color(int code)
+{
+	return colors[code%NUM_COLORS];
+}
+
+// Erase text from terminal
+int eraseText(int cnt)
+{
+	char back_space=8;
+	for(int i=0; i<cnt; i++)
+	{
+		cout<<back_space;
+	}	
+	return 0;
+}
+
+// Send message to everyone
+void send_message(int client_socket)
+{
+	while(1)
+	{
+		cout<<colors[1]<<"You : "<<def_col;
+		char str[MAX_LEN];
+		cin.getline(str,MAX_LEN);
+		send(client_socket,str,sizeof(str),0);
+		if(strcmp(str,"#exit")==0)
+		{
+			exit_flag=true;
+			t_recv.detach();	
+			close(client_socket);
+			return;
+		}	
+	}		
 }
 
 // Receive message
